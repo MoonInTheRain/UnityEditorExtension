@@ -29,20 +29,6 @@ public class StageInspector : Editor {
 
         EventType eventType = current.GetTypeForControl(controlID);
 
-        // マウスを上げた時に、固定していた操作を開放する。
-        if (eventType == EventType.MouseUp)
-        {
-            if (GUIUtility.hotControl == controlID)
-            {
-                GUIUtility.hotControl = 0;
-                GUIUtility.keyboardControl = 0;
-
-                // 通常の操作が行われない用に、イベントを使用済みにします。
-                current.Use();
-                return;
-            }
-        }
-
         switch (eventType)
         {
             case EventType.MouseDown:
@@ -50,10 +36,22 @@ public class StageInspector : Editor {
                 if (current.button == 0)
                 {
                     // hotControlを固定して、他の操作が起こらないようにする。
+                    // キーボードの時はkeyboardControl
                     GUIUtility.hotControl = controlID;
 
                     OnClick(current.mousePosition);
 
+                    // 通常の操作が行われない用に、イベントを使用済みにする。
+                    current.Use();
+                }
+                break;
+            case EventType.MouseUp:
+                if (GUIUtility.hotControl == controlID)
+                {
+                    // コントロールを開放する。
+                    GUIUtility.hotControl = 0;
+
+                    // 通常の操作が行われない用に、イベントを使用済みにする。
                     current.Use();
                 }
                 break;
