@@ -43,33 +43,36 @@ public class StageInspector : Editor {
             }
         }
 
-        // マウスのクリック地点から、Stageの表面の座標を算出します。
-        var posTmp = RayToPoint(HandleUtility.GUIPointToWorldRay(current.mousePosition));
-        if (posTmp == null)
-        {
-            // Note: ここでcurrent.Use()すると、何故か動作が不安定になった。
-            // current.Use();
-            return;
-        }
-
-        var pos = posTmp ?? Vector3.zero;
-
-        // 座標をグリッドに合わせるようにした。なんとなく。
-        pos.x = Mathf.RoundToInt(pos.x - 0.5f) + 0.5f;
-        pos.z = Mathf.RoundToInt(pos.z - 0.5f) + 0.5f;
-
         switch (eventType)
         {
             case EventType.MouseDown:
             case EventType.MouseDrag:
                 if (current.button == 0)
                 {
+                    // マウスのクリック地点から、Stageの表面の座標を算出します。
+                    var posTmp = RayToPoint(HandleUtility.GUIPointToWorldRay(current.mousePosition));
+                    if (posTmp == null)
+                    {
+                        current.Use();
+                        return;
+                    }
+
+                    var pos = posTmp ?? Vector3.zero;
+
+                    // 座標をグリッドに合わせるようにした。なんとなく。
+                    pos.x = Mathf.RoundToInt(pos.x - 0.5f) + 0.5f;
+                    pos.z = Mathf.RoundToInt(pos.z - 0.5f) + 0.5f;
+
                     // hotControlを固定して、他の操作が起こらないようにする。
                     GUIUtility.hotControl = controlID;
 
                     var prefab = stage.GetRandomPrefab();
 
-                    if(prefab == null) { return; }
+                    if(prefab == null)
+                    {
+                        current.Use();
+                        return;
+                    }
 
                     // オブジェクトを作成＆場所調整
                     var cube = Instantiate(prefab);
@@ -78,11 +81,6 @@ public class StageInspector : Editor {
                     // Undoでオブジェクトを削除出来るようにする。
                     Undo.RegisterCreatedObjectUndo(cube, "キューブ作成");
 
-                    current.Use();
-                }
-                break;
-            case EventType.MouseMove:
-                {
                     current.Use();
                 }
                 break;
