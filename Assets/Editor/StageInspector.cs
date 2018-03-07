@@ -49,42 +49,43 @@ public class StageInspector : Editor {
             case EventType.MouseDrag:
                 if (current.button == 0)
                 {
-                    // マウスのクリック地点から、Stageの表面の座標を算出します。
-                    var posTmp = RayToPoint(HandleUtility.GUIPointToWorldRay(current.mousePosition));
-                    if (posTmp == null)
-                    {
-                        current.Use();
-                        return;
-                    }
-
-                    var pos = posTmp ?? Vector3.zero;
-
-                    // 座標をグリッドに合わせるようにした。なんとなく。
-                    pos.x = Mathf.RoundToInt(pos.x - 0.5f) + 0.5f;
-                    pos.z = Mathf.RoundToInt(pos.z - 0.5f) + 0.5f;
-
                     // hotControlを固定して、他の操作が起こらないようにする。
                     GUIUtility.hotControl = controlID;
 
-                    var prefab = stage.GetRandomPrefab();
-
-                    if(prefab == null)
-                    {
-                        current.Use();
-                        return;
-                    }
-
-                    // オブジェクトを作成＆場所調整
-                    var cube = Instantiate(prefab);
-                    cube.transform.position = pos;
-
-                    // Undoでオブジェクトを削除出来るようにする。
-                    Undo.RegisterCreatedObjectUndo(cube, "キューブ作成");
+                    OnClick(current.mousePosition);
 
                     current.Use();
                 }
                 break;
         }
+    }
+
+    /// <summary>
+    /// クリック時の動作
+    /// </summary>
+    /// <param name="mousePos"></param>
+    private void OnClick(Vector3 mousePos)
+    {
+        // マウスのクリック地点から、Stageの表面の座標を算出します。
+        var posTmp = RayToPoint(HandleUtility.GUIPointToWorldRay(mousePos));
+        if (posTmp == null) { return; }
+
+        var pos = posTmp ?? Vector3.zero;
+
+        // 座標をグリッドに合わせるようにした。なんとなく。
+        pos.x = Mathf.RoundToInt(pos.x - 0.5f) + 0.5f;
+        pos.z = Mathf.RoundToInt(pos.z - 0.5f) + 0.5f;
+
+        var prefab = stage.GetRandomPrefab();
+
+        if (prefab == null) { return; }
+
+        // オブジェクトを作成＆場所調整
+        var cube = Instantiate(prefab);
+        cube.transform.position = pos;
+
+        // Undoでオブジェクトを削除出来るようにする。
+        Undo.RegisterCreatedObjectUndo(cube, "キューブ作成");
     }
 
     /// <summary>
