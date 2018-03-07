@@ -35,14 +35,17 @@ public class StageInspector : Editor {
             case EventType.MouseDrag:
                 if (current.button == 0)
                 {
-                    // hotControlを固定して、他の操作が起こらないようにする。
-                    // キーボードの時はkeyboardControl
-                    GUIUtility.hotControl = controlID;
+                    var isSuccess = OnClick(current.mousePosition);
 
-                    OnClick(current.mousePosition);
+                    if (isSuccess)
+                    {
+                        // hotControlを固定して、他の操作が起こらないようにする。
+                        // キーボードの時はkeyboardControl
+                        GUIUtility.hotControl = controlID;
 
-                    // 通常の操作が行われない用に、イベントを使用済みにする。
-                    current.Use();
+                        // 通常の操作が行われない用に、イベントを使用済みにする。
+                        current.Use();
+                    }
                 }
                 break;
             case EventType.MouseUp:
@@ -62,11 +65,11 @@ public class StageInspector : Editor {
     /// クリック時の動作
     /// </summary>
     /// <param name="mousePos"></param>
-    private void OnClick(Vector3 mousePos)
+    private bool OnClick(Vector3 mousePos)
     {
         // マウスのクリック地点から、Stageの表面の座標を算出します。
         var posTmp = RayToPoint(HandleUtility.GUIPointToWorldRay(mousePos));
-        if (posTmp == null) { return; }
+        if (posTmp == null) { return false; }
 
         var pos = posTmp ?? Vector3.zero;
 
@@ -76,7 +79,7 @@ public class StageInspector : Editor {
 
         var prefab = stage.GetRandomPrefab();
 
-        if (prefab == null) { return; }
+        if (prefab == null) { return false; }
 
         // オブジェクトを作成＆場所調整
         var cube = Instantiate(prefab);
@@ -84,6 +87,8 @@ public class StageInspector : Editor {
 
         // Undoでオブジェクトを削除出来るようにする。
         Undo.RegisterCreatedObjectUndo(cube, "キューブ作成");
+
+        return true;
     }
 
     /// <summary>
