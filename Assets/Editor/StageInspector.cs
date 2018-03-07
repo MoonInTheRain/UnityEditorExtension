@@ -98,9 +98,6 @@ public class StageInspector : Editor {
     /// <param name="pos">マウス位置</param>
     public Vector3? RayToPoint(Ray ray)
     {
-        var mesh = stage.GetComponent<MeshCollider>();
-        if(mesh == null) { return null; }
-
         RaycastHit info;
 
         if (Physics.Raycast(ray, out info))
